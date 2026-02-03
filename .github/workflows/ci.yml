@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+          cache-dependency-path: './code_hub/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: ./code_hub
+        run: npm ci
+      
+      - name: Run linting
+        working-directory: ./code_hub
+        run: npm run lint
+      
+      - name: Run tests
+        working-directory: ./code_hub
+        run: npm run test:run
+      
+      - name: Build frontend
+        working-directory: ./code_hub
+        run: npm run build
+
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './code_hub/src-tauri -> target'
+      
+      - name: Run Rust tests
+        working-directory: ./code_hub/src-tauri
+        run: cargo test
+      
+      - name: Check Rust formatting
+        working-directory: ./code_hub/src-tauri
+        run: cargo fmt -- --check
+      
+      - name: Run Clippy
+        working-directory: ./code_hub/src-tauri
+        run: cargo clippy -- -D warnings
+
+  test-build:
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './code_hub/src-tauri -> target'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+          cache-dependency-path: './code_hub/package-lock.json'
+      
+      - name: Install frontend dependencies
+        working-directory: ./code_hub
+        run: npm ci
+      
+      - name: Test build
+        working-directory: ./code_hub
+        run: npm run tauri build -- --debug

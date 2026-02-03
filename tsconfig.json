@@ -1,0 +1,70 @@
+{
+  // SnippetsHub - TypeScript配置文件
+  // 
+  // 配置说明:
+  // - 针对Vue 3 + Vite + Tauri的TypeScript配置
+  // - 启用严格模式确保代码质量
+  // - 支持现代ES特性和DOM API
+  // - 配置路径别名简化导入
+  
+  "compilerOptions": {
+    // 编译目标 - ES2020提供现代JavaScript特性支持
+    "target": "ES2020",
+    
+    // Vue 3类字段定义支持
+    "useDefineForClassFields": true,
+    
+    // 包含的库 - ES2020 + DOM API
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    
+    // 模块系统 - ESNext支持最新的模块特性
+    "module": "ESNext",
+    
+    // 跳过库文件类型检查以提高编译速度
+    "skipLibCheck": true,
+    
+    // 模块解析策略 - bundler模式适配Vite
+    "moduleResolution": "bundler",
+    
+    // 允许导入.ts扩展名文件
+    "allowImportingTsExtensions": true,
+    
+    // 支持导入JSON模块
+    "resolveJsonModule": true,
+    
+    // 每个文件作为独立模块处理
+    "isolatedModules": true,
+    
+    // 不生成输出文件（由Vite处理）
+    "noEmit": true,
+    
+    // JSX处理 - preserve模式让Vite处理
+    "jsx": "preserve",
+    
+    // 严格模式 - 启用所有严格类型检查
+    "strict": true,
+    
+    // 检查未使用的局部变量
+    "noUnusedLocals": true,
+    
+    // 检查未使用的参数
+    "noUnusedParameters": true,
+    
+    // 检查switch语句的fallthrough
+    "noFallthroughCasesInSwitch": true,
+    
+    // 基础路径
+    "baseUrl": ".",
+    
+    // 路径映射 - 支持@/别名
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  
+  // 包含的文件类型
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  
+  // 项目引用
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

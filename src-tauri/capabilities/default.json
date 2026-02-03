@@ -1,0 +1,220 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "fs:default",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-text",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-is-registered",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "python3",
+          "cmd": "python3",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "python",
+          "cmd": "python",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "node",
+          "cmd": "node",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "bash",
+          "cmd": "bash",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "sh",
+          "cmd": "sh",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "git",
+          "cmd": "git",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "rustc",
+          "cmd": "rustc",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "go",
+          "cmd": "go",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "java",
+          "cmd": "java",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "g++",
+          "cmd": "g++",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "gcc",
+          "cmd": "gcc",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "ruby",
+          "cmd": "ruby",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "swift",
+          "cmd": "swift",
+          "args": true,
+          "sidecar": false
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "python3",
+          "cmd": "python3",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "python",
+          "cmd": "python",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "node",
+          "cmd": "node",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "bash",
+          "cmd": "bash",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "sh",
+          "cmd": "sh",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "git",
+          "cmd": "git",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "rustc",
+          "cmd": "rustc",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "go",
+          "cmd": "go",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "java",
+          "cmd": "java",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "g++",
+          "cmd": "g++",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "gcc",
+          "cmd": "gcc",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "ruby",
+          "cmd": "ruby",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "swift",
+          "cmd": "swift",
+          "args": true,
+          "sidecar": false
+        }
+      ]
+    },
+    "shell:allow-stdin-write",
+    {
+      "identifier": "fs:allow-read",
+      "allow": [
+        "$APPDATA/**",
+        "$APPCACHE/**"
+      ]
+    },
+    {
+      "identifier": "fs:allow-write",
+      "allow": [
+        "$APPDATA/**",
+        "$APPCACHE/**"
+      ]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        "$APPDATA/**",
+        "$APPCACHE/**"
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [
+        "$APPDATA/**",
+        "$APPCACHE/**"
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        "$APPDATA/**",
+        "$APPCACHE/**"
+      ]
+    }
+  ]
+}

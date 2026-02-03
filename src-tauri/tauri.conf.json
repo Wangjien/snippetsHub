@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SnippetsHub",
+  "version": "1.0.0",
+  "identifier": "com.noah.snippetshub",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SnippetsHub - 代码片段管理工具",
+        "width": 1500,
+        "height": 950,
+        "minWidth": 1200,
+        "minHeight": 800,
+        "center": true,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "closable": true,
+        "focus": true,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "skipTaskbar": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "publisher": "Noah",
+    "copyright": "Copyright © 2026 Noah. All rights reserved.",
+    "category": "DeveloperTool",
+    "shortDescription": "代码片段管理工具",
+    "longDescription": "SnippetsHub 是一个功能强大的代码片段管理工具，提供智能搜索、快捷键管理、性能监控等专业功能，帮助开发者高效管理和使用代码片段。",
+    "externalBin": [],
+    "resources": []
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/{{GITHUB_REPOSITORY}}/releases/latest/download/latest.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhEQzY4M0Y5RkY4NzNFNzAKUldSVGJYUXRZbVZoZEhKcFkyVXRjbVZzWldGelpTNXdkV0pzYVdOclpYa3VZMjl0Q2c9PQ=="
+    }
+  }
+}
