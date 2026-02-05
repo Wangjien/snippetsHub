@@ -20,7 +20,7 @@
  */
 
 import { ref, onMounted, onUnmounted } from 'vue'
-import { performanceMonitor } from '../utils/performance'
+// import { performanceMonitor } from '../utils/performance' // 暂时注释掉不存在的导入
 
 /**
  * 键盘快捷键组合式函数
@@ -129,11 +129,11 @@ export function useKeyboardShortcuts() {
     })
 
     // 记录快捷键注册
-    performanceMonitor.recordInteraction('register-shortcut', {
-      key: normalizedKey,
-      context,
-      description: options.description
-    })
+    // performanceMonitor.recordInteraction('register-shortcut', {
+    //   key: normalizedKey,
+    //   context,
+    //   description: options.description
+    // })
   }
 
   /**
@@ -202,10 +202,10 @@ export function useKeyboardShortcuts() {
     
     if (shortcut) {
       // 记录快捷键使用
-      performanceMonitor.recordInteraction('use-shortcut', {
-        key: shortcutKey,
-        context: currentContext.value
-      })
+      // performanceMonitor.recordInteraction('use-shortcut', {
+      //   key: shortcutKey,
+      //   context: currentContext.value
+      // })
 
       // 阻止默认行为
       if (shortcut.preventDefault) {
@@ -228,10 +228,10 @@ export function useKeyboardShortcuts() {
         }
       } catch (error) {
         console.error('Shortcut handler error:', error)
-        performanceMonitor.recordInteraction('shortcut-error', {
-          key: shortcutKey,
-          error: error.message
-        })
+        // performanceMonitor.recordInteraction('shortcut-error', {
+        //   key: shortcutKey,
+        //   error: error.message
+        // })
       }
     }
   }

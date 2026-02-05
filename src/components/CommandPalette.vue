@@ -97,7 +97,7 @@ const appStore = useAppStore()
 import { useThemeStore } from '../stores/themeStore'
 import { useSnippetStore } from '../stores/snippetStore'
 import { useAdvancedSearch } from '../composables/useAdvancedSearch'
-import { performanceMonitor } from '../utils/performance'
+import { performanceMonitor } from '../utils/performanceOptimized'
 
 const props = defineProps({
   isOpen: Boolean,

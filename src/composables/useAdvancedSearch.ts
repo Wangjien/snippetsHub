@@ -1,6 +1,6 @@
 import { ref, computed, watch, type Ref } from 'vue'
 import { debounce } from '../utils'
-import { performanceMonitor } from '../utils/performance'
+import { performanceMonitor } from '../utils/performanceOptimized'
 import { searchCache } from '../utils/cache'
 import type { Snippet } from '../types/models'
 
