@@ -9,6 +9,7 @@
     "core:default",
     "opener:default",
     "fs:default",
+    "dialog:default",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "global-shortcut:allow-register",

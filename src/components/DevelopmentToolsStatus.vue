@@ -160,9 +160,9 @@ import {
 } from 'lucide-vue-next'
 import { codeExecutionService } from '../services/codeExecutionService'
 import { lspService } from '../services/lspService'
-import { useGlobalNotifications } from '../composables/useNotifications'
+import { useNotifications } from '../composables/useNotifications'
 
-const { info, success } = useGlobalNotifications()
+const { error: notifyError } = useNotifications()
 
 const isRefreshing = ref(false)
 const showGuide = ref(false)

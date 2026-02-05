@@ -43,7 +43,7 @@
       />
 
       <!-- TODO 视图 -->
-      <TodoList v-if="appStore.currentView === 'todo'" />
+      <TodoListModern v-if="appStore.currentView === 'todo'" />
 
       <!-- 收藏视图 -->
       <FavoritesView 
@@ -96,6 +96,17 @@
     <!-- 通知系统 -->
     <NotificationSystem />
 
+    <!-- 确认对话框 -->
+    <ConfirmDialog
+      v-if="confirmState.isVisible"
+      :title="confirmState.title"
+      :message="confirmState.message"
+      :confirmText="confirmState.confirmText"
+      :isLoading="confirmState.isLoading"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
+
     <!-- 更新管理器 -->
     <UpdateManager />
 
@@ -125,7 +136,8 @@ import { useEditorStore } from './stores/editorStore'
 import { APP_VERSION, SHORTCUTS, THEMES } from './constants'
 import { useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
 import { useGlobalShortcuts } from './composables/useGlobalShortcuts'
-import { useGlobalNotifications } from './composables/useNotifications'
+import { useNotifications } from './composables/useNotifications'
+import { useConfirm } from './composables/useConfirm'
 import { performanceMonitor } from './utils/performanceOptimized'
 
 
@@ -138,11 +150,12 @@ const SnippetList = defineAsyncComponent(() => import('./components/SnippetList.
 const CodeEditor = defineAsyncComponent(() => import('./components/CodeEditor.vue'))
 const EditorTabs = defineAsyncComponent(() => import('./components/EditorTabs.vue'))
 const CommandPalette = defineAsyncComponent(() => import('./components/CommandPalette.vue'))
-const TodoList = defineAsyncComponent(() => import('./components/TodoList.vue'))
+const TodoListModern = defineAsyncComponent(() => import('./components/TodoListModern.vue'))
 const FavoritesView = defineAsyncComponent(() => import('./components/FavoritesView.vue'))
 const MarkdownEditor = defineAsyncComponent(() => import('./components/MarkdownEditor.vue'))
 const SettingsPanel = defineAsyncComponent(() => import('./components/SettingsPanel.vue'))
 const NotificationSystem = defineAsyncComponent(() => import('./components/NotificationSystem.vue'))
+const ConfirmDialog = defineAsyncComponent(() => import('./components/ConfirmDialog.vue'))
 const ModeSelectionModal = defineAsyncComponent(() => import('./components/ModeSelectionModal.vue'))
 const UpdateManager = defineAsyncComponent(() => import('./components/UpdateManager.vue'))
 
@@ -151,6 +164,8 @@ const appStore = useAppStore()
 const themeStore = useThemeStore()
 const cloudStore = useCloudStore()
 const editorStore = useEditorStore()
+const { success, error, info } = useNotifications()
+const { confirmState, handleConfirm, handleCancel } = useConfirm()
 
 // Auto Sync Timers
 const syncTimers = {}
@@ -158,7 +173,6 @@ const syncTimers = {}
 // 初始化高级功能
 const { register: registerShortcut, setContext } = useKeyboardShortcuts()
 useGlobalShortcuts()
-const { success, error, info } = useGlobalNotifications()
 
 const showEditorView = ref(false)
 const showModeSelection = ref(false)

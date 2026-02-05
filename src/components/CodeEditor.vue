@@ -30,8 +30,9 @@
              <GitCompare :size="18" />
              <span class="btn-label">对比</span>
            </button>
-           
-           <div class="divider-vertical"></div>
+
+           <!-- 运行按钮已隐藏 -->
+           <!-- <div class="divider-vertical"></div>
            
            <button 
              @click="runCode" 
@@ -42,7 +43,7 @@
            >
              <Play :size="16" :class="{ 'fill-current': !isRunning }" />
              <span class="btn-label">{{ isRunning ? '运行中...' : '运行' }}</span>
-           </button>
+           </button> -->
        </div>
        
        <div class="header-actions">
@@ -193,7 +194,7 @@ import html2canvas from 'html2canvas'
 import { useThemeStore } from '../stores/themeStore'
 import { useEditorStore } from '../stores/editorStore'
 
-import { useGlobalNotifications } from '../composables/useNotifications'
+import { useNotifications } from '../composables/useNotifications'
 import { useLSP } from '../services/lspService'
 
 // Tauri APIs
@@ -207,7 +208,7 @@ import { registerLanguageCompletions } from '../utils/languageCompletion'
 const emit = defineEmits(['save', 'close'])
 const themeStore = useThemeStore()
 const editorStore = useEditorStore()
-const { error, info } = useGlobalNotifications()
+const { success, error, info } = useNotifications()
 const { lspService, initialize: initializeLSP, getCompletion, getHover, formatDocument } = useLSP()
 
 const activeTab = computed(() => editorStore.activeTab)

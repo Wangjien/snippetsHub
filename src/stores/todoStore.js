@@ -66,10 +66,10 @@ export const useTodoStore = defineStore('todo', () => {
   const isLoading = ref(false)
   const error = ref(null)
 
-  // 计算属性
-  const completedCount = computed(() => stats.value.completed)
-  const pendingCount = computed(() => stats.value.pending)
-  const totalCount = computed(() => stats.value.total)
+  // 计算属性 - 检查 completed 字段或 status === 'completed'
+  const completedCount = computed(() => todos.value.filter(todo => todo.completed || todo.status === 'completed').length)
+  const pendingCount = computed(() => todos.value.filter(todo => !todo.completed && todo.status !== 'completed').length)
+  const totalCount = computed(() => todos.value.length)
 
   const todosByPriority = computed(() => {
     const groups = {
@@ -395,9 +395,9 @@ export const useTodoStore = defineStore('todo', () => {
   const filterTodos = (filter) => {
     switch (filter) {
       case 'completed':
-        return todos.value.filter(todo => todo.completed)
+        return todos.value.filter(todo => todo.completed || todo.status === 'completed')
       case 'pending':
-        return todos.value.filter(todo => !todo.completed)
+        return todos.value.filter(todo => !todo.completed && todo.status !== 'completed')
       case 'high':
         return todos.value.filter(todo => todo.priority === PRIORITY.HIGH)
       case 'medium':
@@ -432,21 +432,43 @@ export const useTodoStore = defineStore('todo', () => {
   }
 
   const clearCompleted = async () => {
+    console.log('clearCompleted called')
+
     try {
-      const completedTodos = todos.value.filter(todo => todo.completed)
+      // 先重新加载数据确保状态同步
+      await loadTodos()
+
+      const completedTodos = todos.value.filter(todo => todo.completed || todo.status === 'completed')
+      console.log('Completed todos found:', completedTodos.length)
+
+      if (completedTodos.length === 0) {
+        console.log('No completed todos to clear')
+        return 0
+      }
+
       const todoIds = completedTodos.map(todo => todo.id)
+      console.log('Todo IDs to delete:', todoIds)
 
-      if (todoIds.length === 0) return
-
-      await invoke('batch_update_todos', {
-        operation: {
-          todo_ids: todoIds,
-          operation: 'delete'
+      // 使用单个删除确保可靠性
+      let deletedCount = 0
+      for (const todoId of todoIds) {
+        try {
+          console.log('Deleting todo:', todoId)
+          await invoke('delete_todo', { todoId })
+          deletedCount++
+        } catch (error) {
+          console.error('Failed to delete todo:', todoId, error)
         }
-      })
+      }
 
-      todos.value = todos.value.filter(todo => !todo.completed)
-      await loadStats() // 更新统计信息
+      console.log('Deleted count:', deletedCount)
+
+      // 重新加载数据和统计信息 - 关键修复
+      await loadTodos()
+      await loadStats()
+
+      console.log('Data reloaded, clearCompleted finished successfully')
+      return deletedCount
     } catch (err) {
       console.error('Failed to clear completed todos:', err)
       error.value = '清除已完成任务失败'
@@ -534,42 +556,63 @@ export const useTodoStore = defineStore('todo', () => {
   const timeTrackingState = ref({}) // 存储每个任务的开始时间
 
   const startTimeTracking = async (taskId) => {
+    console.log('startTimeTracking called with taskId:', taskId)
     const task = todos.value.find(t => t.id === taskId)
-    if (!task) throw new Error('任务不存在')
+    if (!task) {
+      console.error('Task not found:', taskId)
+      throw new Error('任务不存在')
+    }
 
+    console.log('Setting tracking state for task:', taskId)
     // 记录开始时间
     timeTrackingState.value[taskId] = Date.now()
-    
-    // 更新任务状态为进行中
-    return updateTodo(taskId, { status: 'in_progress' })
+    console.log('timeTrackingState after start:', timeTrackingState.value)
+    forceUpdateTracking() // 强制更新响应式
+
+    // 更新任务状态为进行中（如果还没有完成的话）
+    console.log('Updating task status to in_progress')
+    if (!task.completed) {
+      return updateTodo(taskId, { status: 'in_progress' })
+    }
   }
 
   const stopTimeTracking = async (taskId, manualHours = null) => {
+    console.log('stopTimeTracking called with taskId:', taskId, 'manualHours:', manualHours)
     const task = todos.value.find(t => t.id === taskId)
-    if (!task) throw new Error('任务不存在')
+    if (!task) {
+      console.error('Task not found:', taskId)
+      throw new Error('任务不存在')
+    }
 
     let actualHours = 0
-    
+
     if (manualHours !== null) {
+      console.log('Using manual hours:', manualHours)
       // 使用手动输入的时间
       actualHours = manualHours
     } else if (timeTrackingState.value[taskId]) {
+      console.log('Calculating auto-tracked time')
       // 计算自动追踪的时间
       const startTime = timeTrackingState.value[taskId]
       const endTime = Date.now()
       const durationMs = endTime - startTime
       actualHours = Math.round((durationMs / (1000 * 60 * 60)) * 100) / 100 // 保留两位小数
-      
+      console.log('Auto-tracked hours:', actualHours)
+
       // 清除追踪状态
       delete timeTrackingState.value[taskId]
+      console.log('timeTrackingState after stop:', timeTrackingState.value)
+      forceUpdateTracking() // 强制更新响应式
     }
 
     // 累加到现有的actual_hours
     const currentActualHours = task.actual_hours || 0
     const newActualHours = currentActualHours + actualHours
+    console.log('Updating actual_hours from', currentActualHours, 'to', newActualHours)
 
     return updateTodo(taskId, {
       actual_hours: newActualHours,
+      // 停止计时后，如果未完成，将状态重置为'todo'，以便此时显示"开始计时"按钮
       status: task.completed ? 'completed' : 'todo'
     })
   }
@@ -583,10 +626,17 @@ export const useTodoStore = defineStore('todo', () => {
   const getCurrentTrackingTime = (taskId) => {
     const startTime = timeTrackingState.value[taskId]
     if (!startTime) return 0
-    
+
     const currentTime = Date.now()
     const durationMs = currentTime - startTime
     return Math.round((durationMs / (1000 * 60 * 60)) * 100) / 100 // 小时，保留两位小数
+  }
+
+  // 强制更新追踪状态的响应式
+  const forceUpdateTracking = () => {
+    // 触发响应式更新
+    const currentState = { ...timeTrackingState.value }
+    timeTrackingState.value = currentState
   }
 
   // 生产力分析
@@ -733,6 +783,7 @@ export const useTodoStore = defineStore('todo', () => {
     stopTimeTracking,
     isTimeTracking,
     getCurrentTrackingTime,
+    forceUpdateTracking,
     getProductivityStats,
     exportTodos,
     importTodos,

@@ -81,6 +81,14 @@
           <Save :size="16" />
           <span>保存</span>
         </button>
+        <button 
+          class="icon-btn-ghost" 
+          :class="{ active: showOutline }"
+          @click="showOutline = !showOutline" 
+          title="目录大纲"
+        >
+          <List :size="20" />
+        </button>
         <button class="icon-btn-ghost" @click="showExportMenu = !showExportMenu" title="导出">
           <Download :size="20" />
         </button>
@@ -221,6 +229,8 @@
           @paste="handlePaste"
           @keydown="handleKeydown"
           @click="updateCursorPosition"
+          @mouseup="handleTextSelection"
+          @select="handleTextSelection"
           class="main-textarea"
           placeholder="开始写作..."
           spellcheck="false"
@@ -232,7 +242,25 @@
       <div v-show="viewMode !== 'edit'" class="pane preview-pane" ref="previewRef" @scroll="handleScroll('preview')" :style="previewPaneStyle">
          <div class="markdown-preview" :class="`theme-${markdownStore.currentTheme}`" v-html="previewHtml"></div>
       </div>
+
+      <!-- 目录大纲 -->
+      <MarkdownOutline
+        v-if="showOutline"
+        :content="markdownStore.content"
+        :scrollContainer="previewRef"
+        @close="showOutline = false"
+        @scroll-to="scrollToHeading"
+      />
     </div>
+
+    <!-- 浮动工具栏 -->
+    <MarkdownFloatingToolbar
+      :show="showFloatingToolbar"
+      :selection="textSelection"
+      :textareaRef="textareaRef"
+      @format="handleFloatingFormat"
+      @copy="handleCopy"
+    />
 
     <!-- Floating Status Bar -->
     <div class="floating-status">
@@ -278,6 +306,8 @@ import {
 import { useMarkdownStore } from '../stores/markdownStore'
 import { fileUtils } from '../utils'
 import LoadingSpinner from './LoadingSpinner.vue'
+import MarkdownFloatingToolbar from './MarkdownFloatingToolbar.vue'
+import MarkdownOutline from './MarkdownOutline.vue'
 
 // 导入highlight.js样式
 import 'highlight.js/styles/github.css'
@@ -295,6 +325,9 @@ const fileInputRef = ref(null)
 // State for new features
 const showExportMenu = ref(false)
 const showHistoryModal = ref(false)
+const showOutline = ref(false)
+const showFloatingToolbar = ref(false)
+const textSelection = ref(null)
 
 const isScrolling = ref(false) // 用于防止滚动循环触发
 const showSettings = ref(false)
@@ -588,6 +621,69 @@ const handleFileImport = async (event) => {
   }
 }
 
+// 处理文本选择
+const handleTextSelection = () => {
+  const textarea = textareaRef.value
+  if (!textarea) return
+
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+
+  if (start !== end) {
+    textSelection.value = { start, end }
+    showFloatingToolbar.value = true
+  } else {
+    showFloatingToolbar.value = false
+    textSelection.value = null
+  }
+}
+
+// 处理浮动工具栏格式化
+const handleFloatingFormat = ({ start, end, text, cursorOffset }) => {
+  const textarea = textareaRef.value
+  if (!textarea) return
+
+  const newContent = 
+    markdownStore.content.substring(0, start) + 
+    text + 
+    markdownStore.content.substring(end)
+  
+  markdownStore.updateContent(newContent)
+
+  nextTick(() => {
+    textarea.focus()
+    const newCursorPos = start + cursorOffset
+    textarea.setSelectionRange(newCursorPos, newCursorPos + (end - start))
+    showFloatingToolbar.value = false
+  })
+}
+
+// 处理复制
+const handleCopy = (text) => {
+  console.log('Copied:', text)
+  showFloatingToolbar.value = false
+}
+
+// 滚动到标题
+const scrollToHeading = (heading) => {
+  const textarea = textareaRef.value
+  if (!textarea) return
+
+  const lines = markdownStore.content.split('\n')
+  let charCount = 0
+  
+  for (let i = 0; i < heading.lineIndex; i++) {
+    charCount += lines[i].length + 1 // +1 for newline
+  }
+
+  textarea.focus()
+  textarea.setSelectionRange(charCount, charCount)
+  
+  // 滚动到视图
+  const lineHeight = parseInt(getComputedStyle(textarea).lineHeight) || 24
+  textarea.scrollTop = heading.lineIndex * lineHeight - 100
+}
+
 const clearContent = () => {
   if (markdownStore.content && !confirm('确定要清空所有内容吗？此操作不可撤销。')) {
     return
@@ -602,13 +698,6 @@ const toggleToc = () => {
 
 const toggleSettings = () => {
   showSettings.value = !showSettings.value
-}
-
-const scrollToHeading = (id) => {
-  const element = document.getElementById(id)
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth' })
-  }
 }
 
 // New functions for export and history
@@ -759,6 +848,10 @@ const applyCodeBlockStyles = () => {
   transition: all 0.2s;
 }
 .icon-btn-ghost:hover { background: var(--color-background-tertiary); color: var(--color-text-primary); }
+.icon-btn-ghost.active {
+  background: var(--color-primary);
+  color: white;
+}
 
 .view-switcher {
   display: flex; background: var(--color-background-secondary);

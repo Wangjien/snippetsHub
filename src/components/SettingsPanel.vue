@@ -36,6 +36,7 @@
           class="nav-item"
           :class="{ active: activeCategory === category.id }"
           @click="activeCategory = category.id"
+          :title="category.label"
         >
           <component :is="category.icon" :size="20" />
           <span class="nav-label">{{ category.label }}</span>
@@ -263,7 +264,7 @@
                 <p>以下操作将永久删除您的数据，请谨慎操作</p>
               </div>
             </div>
-            <button class="danger-btn" @click="clearAllData">
+            <button class="danger-btn" @click="clearAllData" title="永久删除所有数据（不可恢复）">
               <Trash2 :size="18" />
               清除所有数据
             </button>

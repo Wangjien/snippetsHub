@@ -51,10 +51,10 @@
  */
 import { useEditorStore } from '../stores/editorStore'
 import { FileCode, Plus, X, Home } from 'lucide-vue-next'
-import { useGlobalNotifications } from '../composables/useNotifications'
+import { useNotifications } from '../composables/useNotifications'
 
 const editorStore = useEditorStore()
-const { confirm } = useGlobalNotifications()
+const { success, error } = useNotifications()
 
 const handleClose = async (tab) => {
   if (tab.isDirty) {

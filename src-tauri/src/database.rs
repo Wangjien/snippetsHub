@@ -128,6 +128,38 @@ impl Database {
             .await
             .ok(); // Ignore error if update fails
 
+        // Add due dates to existing todos for calendar testing
+        let today = chrono::Utc::now().format("%Y-%m-%d").to_string();
+        let tomorrow = chrono::Utc::now()
+            .checked_add_signed(chrono::Duration::days(1))
+            .unwrap_or_else(chrono::Utc::now)
+            .format("%Y-%m-%d")
+            .to_string();
+        let next_week = chrono::Utc::now()
+            .checked_add_signed(chrono::Duration::days(7))
+            .unwrap_or_else(chrono::Utc::now)
+            .format("%Y-%m-%d")
+            .to_string();
+
+        // Set due dates for existing todos without due_date
+        sqlx::query("UPDATE todos SET due_date = ? WHERE due_date IS NULL AND status = 'in_progress' LIMIT 1")
+            .bind(&today)
+            .execute(&self.pool)
+            .await
+            .ok();
+
+        sqlx::query("UPDATE todos SET due_date = ? WHERE due_date IS NULL AND status = 'todo' LIMIT 1")
+            .bind(&tomorrow)
+            .execute(&self.pool)
+            .await
+            .ok();
+
+        sqlx::query("UPDATE todos SET due_date = ? WHERE due_date IS NULL LIMIT 1")
+            .bind(&next_week)
+            .execute(&self.pool)
+            .await
+            .ok();
+
         // Folders Table
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS folders (
@@ -1102,7 +1134,7 @@ impl Database {
 
     pub async fn get_todos(&self) -> Result<Vec<Todo>, String> {
         let rows = sqlx::query(
-            "SELECT id, title, description, status, priority, due_date, estimated_hours, actual_hours, progress, assignee, project_id, parent_id, recurring_config, dependencies, completed, archived, created_by, updated_by, created_at, updated_at, archived_at FROM todos ORDER BY created_at DESC"
+            "SELECT id, title, description, status, priority, due_date, estimated_hours, actual_hours, progress, assignee, project_id, parent_id, recurring_config, dependencies, completed, archived, created_by, updated_by, created_at, updated_at, archived_at FROM todos WHERE archived = false ORDER BY created_at DESC"
         )
         .fetch_all(&self.pool)
         .await

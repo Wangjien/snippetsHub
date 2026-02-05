@@ -126,10 +126,10 @@
 import { ref, computed } from 'vue'
 import { Plus, Pencil, Trash2, X, Save, Tag, Check } from 'lucide-vue-next'
 import { useTodoStore, TAG_COLORS } from '../stores/todoStore'
-import { useGlobalNotifications } from '../composables/useNotifications'
+import { useNotifications } from '../composables/useNotifications'
 
 const todoStore = useTodoStore()
-const { success, error } = useGlobalNotifications()
+const { success, error } = useNotifications()
 
 const showCreateTag = ref(false)
 const editingTag = ref(null)

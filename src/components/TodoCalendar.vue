@@ -65,15 +65,21 @@
             v-for="todo in getTodosForDate(day.date)" 
             :key="todo.id"
             class="calendar-todo"
-            :class="{ 'completed': todo.completed, [todo.priority]: true, 'dragging': isDragging === todo.id }"
+            :class="{ 
+              'completed': todo.completed, 
+              [todo.priority]: true, 
+              'dragging': isDragging === todo.id,
+              'no-due-date': !todo.due_date
+            }"
             @click.stop="editTodo(todo)"
             draggable="true"
             @dragstart="handleDragStart($event, todo)"
             @dragend="handleDragEnd"
-            :title="todo.title"
+            :title="todo.due_date ? `${todo.title} (截止: ${todo.due_date})` : `${todo.title} (无截止日期)`"
           >
             <span class="todo-dot"></span>
             <span class="todo-text">{{ todo.title }}</span>
+            <span v-if="!todo.due_date" class="no-date-indicator" title="无截止日期">○</span>
           </div>
         </div>
       </div>
@@ -183,10 +189,21 @@ const isSelectedDate = (dateStr) => {
 }
 
 const getTodosForDate = (dateStr) => {
-  return props.todos.filter(todo => {
+  const todosWithDueDate = props.todos.filter(todo => {
     if (!todo.due_date) return false
     return dayjs(todo.due_date).format('YYYY-MM-DD') === dateStr
   })
+  
+  // 如果是今天，也显示没有due_date的未完成任务
+  const isToday = dayjs(dateStr).isSame(dayjs(), 'day')
+  if (isToday) {
+    const todosWithoutDueDate = props.todos.filter(todo => {
+      return !todo.due_date && !todo.completed
+    })
+    return [...todosWithDueDate, ...todosWithoutDueDate]
+  }
+  
+  return todosWithDueDate
 }
 
 const handleDayClick = (dateStr) => {
@@ -480,6 +497,19 @@ const handleDrop = (e, dateStr) => {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+}
+
+.calendar-todo.no-due-date {
+  border-left: 2px solid var(--color-text-tertiary);
+  background: color-mix(in srgb, var(--color-text-tertiary), transparent 90%);
+  opacity: 0.8;
+}
+
+.no-date-indicator {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* Priority Colors */
