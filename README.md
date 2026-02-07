@@ -14,7 +14,7 @@ SnippetsHub 是一款基于 **Tauri** 和 **Vue 3** 构建的现代化跨平台�
 ![Task Management](./imgs/management.png)
 
 ## Markdown 笔记
-markdown比较更新，改用vditor（https://github.com/Vanessa219/vditor），再这里也感谢vditor的作者。
+markdown更新，改用vditor（https://github.com/Vanessa219/vditor），再这里也感谢vditor的作者。
 ![alt text](./imgs/image.png)
 ![alt text](./imgs/image2.png)
 ![alt text](./imgs/image3.png)
