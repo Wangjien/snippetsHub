@@ -14,7 +14,14 @@ SnippetsHub 是一款基于 **Tauri** 和 **Vue 3** 构建的现代化跨平台�
 ![Task Management](./imgs/management.png)
 
 ## Markdown 笔记
-![Markdown Notes](./imgs/note.png)
+markdown比较更新，改用vditor（https://github.com/Vanessa219/vditor），再这里也感谢vditor的作者。
+![alt text](./imgs/image.png)
+![alt text](./imgs/image2.png)
+![alt text](./imgs/image3.png)
+
+## 上传到代码片段或文档到仓库
+![alt text](./imgs/image4.png)
+![alt text](./imgs/image5.png)
 
 ## 核心特性
 
@@ -35,7 +42,7 @@ SnippetsHub 是一款基于 **Tauri** 和 **Vue 3** 构建的现代化跨平台�
 
 ## 安装包安装
 
-[https://github.com/Wangjien/snippetsHub/releases/tag/v1.0.2](https://github.com/Wangjien/snippetsHub/releases/tag/v1.0.2)
+[https://github.com/Wangjien/snippetsHub/releases](https://github.com/Wangjien/snippetsHub/releases)
 ![](./imgs/install.png)
 
 ## 本地环境安装(需要有node和Rust环境)
